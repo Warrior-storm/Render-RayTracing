@@ -1,0 +1,21 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compilar pruba.c",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "src/pruba.c",
+                "src/Vector.c",
+                "-o",
+                "src/pruba",
+                "-lm"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
