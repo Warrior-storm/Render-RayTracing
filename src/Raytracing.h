@@ -6,8 +6,8 @@
 typedef struct {
     Vector3 origen;
     Vector3 direccion;
-} Rayo;
+} Ray;
 
-Vector3 ray_at(Rayo r, float t);
+Vector3 rayo(Ray r, float t);
 
 #endif
