@@ -58,6 +58,7 @@
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
   "files.associations": {
     "vector.h": "c",
-    "Escena.C": "cpp"
+    "Escena.C": "cpp",
+    "raytracing.h": "c"
   }
 }

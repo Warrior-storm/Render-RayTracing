@@ -6,7 +6,7 @@ Vector2 sum2(Vector2 a, Vector2 b) {
     return (Vector2){(a.x+b.x),(a.y+b.y)};
 }
 
-void rest2(Vector2 a, Vector2 b){
+Vector2 rest2(Vector2 a, Vector2 b){
     return (Vector2){(a.x-b.x),(a.y-b.y)};
 }
 
