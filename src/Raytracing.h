@@ -8,6 +8,11 @@ typedef struct {
     Vector3 direccion;
 } Ray;
 
+typedef struct {
+    Vector3 posicion;
+    Vector3 color;
+} Luz;
+
 Vector3 rayo(Ray r, float t);
 
 #endif

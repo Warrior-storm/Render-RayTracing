@@ -1,7 +1,8 @@
-#include "Raytracing.h"
-#include "Esfera.h"
+#include "src/Raytracing.h"
+#include "src/Esfera.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -18,7 +19,21 @@ void save_image_ppm(const char *filename, unsigned char *image, int width, int h
     fclose(file);
 }
 
-void generateRayTracingImage(const char *filename, Esfera sphere, Ray ray) {
+Vector3 calcularColor(Esfera sphere, Ray r, Luz luz) {
+    float t;
+    Vector3 normal;
+    if (hit(sphere, r, &t, &normal)) {
+        Vector3 hit_point = rayo(r, t);
+        Vector3 light_dir = norm3(rest3(luz.posicion, hit_point));
+        float difuso = fmax(0.0, dot3(normal, light_dir));
+        
+        Vector3 color = Esc3(luz.color, difuso);
+        return color;
+    }
+    return (Vector3){255, 255, 255};
+    }
+
+void generateRayTracingImage(const char *filename, Esfera sphere, Luz luz) {
     unsigned char *image = (unsigned char *)malloc(3 * WIDTH * HEIGHT);
     if (!image) {
         printf("Error allocating memory for image.\n");
@@ -30,20 +45,15 @@ void generateRayTracingImage(const char *filename, Esfera sphere, Ray ray) {
             float u = (float)x / (WIDTH - 1);
             float v = (float)y / (HEIGHT - 1);
 
-            Ray currentRay = ray;
-            currentRay.direccion = norm3((Vector3){ray.direccion.x + u - 0.5f, ray.direccion.y + v - 0.5f, ray.direccion.z});
+            Ray rayo;
+            rayo.origen = (Vector3){0, 0, 0};
+            rayo.direccion = norm3((Vector3){u * 2 - 1, v * 2 - 1, -1});
 
-            float t;
+            Vector3 color = calcularColor(sphere, rayo, luz);
             int pixel_index = (y * WIDTH + x) * 3;
-            if (hit(sphere, currentRay, &t)) {
-                image[pixel_index] = 255;     // Red
-                image[pixel_index + 1] = 0;   // Green
-                image[pixel_index + 2] = 0;   // Blue
-            } else {
-                image[pixel_index] = 0;     // Red
-                image[pixel_index + 1] = 0; // Green
-                image[pixel_index + 2] = 0; // Blue
-            }
+            image[pixel_index] = (unsigned char)(color.x * 255);
+            image[pixel_index + 1] = (unsigned char)(color.y * 255);
+            image[pixel_index + 2] = (unsigned char)(color.z * 255);
         }
     }
 
@@ -56,11 +66,11 @@ int main() {
     sphere.centro = (Vector3){0, 0, -5};
     sphere.r = 1.0;
 
-    Ray ray;
-    ray.origen = (Vector3){0, 0, 0};
-    ray.direccion = (Vector3){0, 0, -1};
+    Luz luz;
+    luz.posicion = (Vector3){-2, 2, 0};
+    luz.color = (Vector3){1, 1, 1}; // Luz blanca
 
-    generateRayTracingImage("ray_traced_sphere.ppm", sphere, ray);
+    generateRayTracingImage("ray_traced_sphere.ppm", sphere, luz);
 
     return 0;
 }
