@@ -3,7 +3,7 @@
 #include "Vector.h"
 #include <math.h>
 
-int hit(Esfera E, Rayo r, float *x ){
+int hit(Esfera E, Ray r, float *x ){
     Vector3  h = rest3(r.origen, E.centro);
     float a = dot3(r.origen,r.direccion);
     float b = 2.0 * dot3(h,r.direccion);

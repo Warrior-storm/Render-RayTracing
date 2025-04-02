@@ -10,6 +10,6 @@ typedef struct
     float r;
 }Esfera;
 
-int Hit(Esfera E, Rayo r, float *);
+int hit(Esfera E, Ray r, float *);
 
 #endif
