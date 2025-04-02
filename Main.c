@@ -1,7 +1,5 @@
-
 #include "Raytracing.h"
 #include "Esfera.h"
-#include "Vector.h"
 #include <stdio.h>
 #include <stdlib.h>
 
