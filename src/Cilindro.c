@@ -15,13 +15,14 @@ int hit_Cilindro(Cilindro C, Ray r, float *t, Vector3 *normal) {
     float radius2 = C.radius * C.radius;
     float discriminant = a_dot_b * a_dot_b - a_dot_a * (b_dot_b - radius2);
 
-    if (discriminant > 0) {
+    if (discriminant > 0.0) {
         float sqrt_discriminant = sqrt(discriminant);
         float t0 = (-a_dot_b - sqrt_discriminant) / a_dot_a;
         float t1 = (-a_dot_b + sqrt_discriminant) / a_dot_a;
-        if (t0 > 0) {
+
+        if (t0 > 0.0) {
             *t = t0;
-        } else if (t1 > 0) {
+        } else if (t1 > 0.0) {
             *t = t1;
         } else {
             return 0;
@@ -30,7 +31,7 @@ int hit_Cilindro(Cilindro C, Ray r, float *t, Vector3 *normal) {
         Vector3 hit_point = rayo(r, *t);
         Vector3 hit_point_base = rest3(hit_point, C.base);
         float projection_length = dot3(hit_point_base, ca);
-        if (projection_length < 0 || projection_length > C.height) {
+        if (projection_length < 0.0 || projection_length > C.height) {
             return 0;
         }
 
