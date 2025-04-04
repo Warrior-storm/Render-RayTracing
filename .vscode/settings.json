@@ -59,6 +59,7 @@
   "files.associations": {
     "vector.h": "c",
     "Escena.C": "cpp",
-    "raytracing.h": "c"
+    "raytracing.h": "c",
+    "cono.h": "c"
   }
 }

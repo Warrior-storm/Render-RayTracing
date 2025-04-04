@@ -9,7 +9,7 @@
 
 #define WIDTH 800
 #define HEIGHT 600
-#define FRAMES 30
+#define FRAMES 60
 #define PI 3.14159265359
 #define FRAME_DIR "frames"
 #define ROTATION_RADIUS 1.0
