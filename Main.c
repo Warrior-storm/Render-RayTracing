@@ -135,11 +135,11 @@ void generateRayTracingImage(const char *filename, Esfera sphere, Cilindro cilin
         return;
     }
 
-    sphere.centro = Esc3(rotarY(sphere.centro, angle),ROTATION_RADIUS);
-    cilindro.base = Esc3(rotarY(cilindro.base, angle),ROTATION_RADIUS);
-    cono.base = rotarY(cono.base, angle);
+    sphere.centro = rotarY(sphere.centro, angle);
+    cilindro.base = rotarY(cilindro.base, angle); 
+    cono.base = rotarY(cono.base, angle); 
 
-    Vector3 camera_position = {0, 0, 9}; 
+    Vector3 camera_position = {0, 0, 9.5}; 
 
     for (int y = 0; y < HEIGHT; ++y) {
         for (int x = 0; x < WIDTH; ++x) {
