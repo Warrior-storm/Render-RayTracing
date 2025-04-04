@@ -65,5 +65,31 @@ Vector3 cruz3(Vector3 a, Vector3 b) {
         (a.x * b.y) - (a.y * b.x)
     };
 }
+Vector3 rotarX(Vector3 v, float angle) {
+    float cosAngle = cos(angle);
+    float sinAngle = sin(angle);
+    return (Vector3){
+        v.x,
+        v.y * cosAngle - v.z * sinAngle,
+        v.y * sinAngle + v.z * cosAngle
+    };
+}
 
+Vector3 rotarY(Vector3 v, float angle) {
+    float cosAngle = cos(angle);
+    float sinAngle = sin(angle);
+    return (Vector3){
+        v.x * cosAngle + v.z * sinAngle,
+        v.y,
+        -v.x * sinAngle + v.z * cosAngle
+    };
+}
+
+Vector3 puntoMedio(Vector3 a, Vector3 b) {
+    return (Vector3){
+        (a.x + b.x) / 2,
+        (a.y + b.y) / 2,
+        (a.z + b.z) / 2
+    };
+}
 

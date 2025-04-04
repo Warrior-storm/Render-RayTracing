@@ -54,14 +54,14 @@ Vector3 calcularColor(Esfera sphere, Cilindro cilindro, Cubo cubo, Ray r, Luz lu
     return (Vector3){0, 0, 0}; // Fondo negro
 }
 
-void generateRayTracingImage(const char *filename, Esfera sphere, Cilindro cilindro, Cubo cubo, Luz luz) {
+void generateRayTracingImage(const char *filename, Esfera sphere, Cilindro cilindro, Cubo cubo, Luz luz, float angle) {
     unsigned char *image = (unsigned char *)malloc(3 * WIDTH * HEIGHT);
     if (!image) {
         printf("Error allocating memory for image.\n");
         return;
     }
 
-    Vector3 camera_position = {0, 0, 1};
+    Vector3 camera_position = rotarY((Vector3){0, 0, 1}, angle); // Rotar la cámara alrededor del origen
 
     for (int y = 0; y < HEIGHT; ++y) {
         for (int x = 0; x < WIDTH; ++x) {
@@ -94,8 +94,9 @@ void createAnimationFrames(Esfera sphere, Cilindro cilindro, Cubo cubo, Luz luz)
 
     char filename[100];
     for (int i = 0; i < FRAMES; ++i) {
+        float angle = (float)i / FRAMES * 2.0 * M_PI;
         snprintf(filename, sizeof(filename), FRAME_DIR "/frame_%03d.ppm", i);
-        generateRayTracingImage(filename, sphere, cilindro, cubo, luz);
+        generateRayTracingImage(filename, sphere, cilindro, cubo, luz, angle);
     }
 }
 

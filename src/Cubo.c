@@ -62,7 +62,6 @@ int hit_cubo(Cubo C, Ray r, float *t, Vector3 *normal) {
         }
     }
 
-    // Calcular la normal
     Vector3 hit_point = rayo(r, *t);
     if (fabs(hit_point.x - C.min.x) < 0.001) {
         *normal = (Vector3){-1, 0, 0};
