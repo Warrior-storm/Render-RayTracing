@@ -1,15 +1,16 @@
 #include "src/Raytracing.h"
 #include "src/Esfera.h"
 #include "src/Cilindro.h"
-#include "src/Cubo.h"
+#include "src/Cono.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <sys/stat.h> 
+#include <sys/stat.h>
 
 #define WIDTH 800
 #define HEIGHT 600
 #define FRAMES 30
+#define PI 3.14159265359
 #define FRAME_DIR "frames"
 
 void save_image_ppm(const char *filename, unsigned char *image, int width, int height) {
@@ -24,29 +25,38 @@ void save_image_ppm(const char *filename, unsigned char *image, int width, int h
     fclose(file);
 }
 
-Vector3 calcularColor(Esfera sphere, Cilindro cilindro, Cubo cubo, Ray r, Luz luz) {
-    float t_sphere, t_cilindro, t_cubo;
-    Vector3 normal_sphere, normal_cilindro, normal_cubo;
+Vector3 calcularColor(Esfera sphere, Cilindro cilindro, Cono cono, Ray r, Luz luz) {
+    float t_sphere, t_cilindro, t_cono;
+    Vector3 normal_sphere, normal_cilindro, normal_cono;
     int hit_sphere = hit(sphere, r, &t_sphere, &normal_sphere);
     int hit_cyl = hit_Cilindro(cilindro, r, &t_cilindro, &normal_cilindro);
-    int hit_cube = hit_cubo(cubo, r, &t_cubo, &normal_cubo);
+    int hit_cone = hit_cono(cono, r, &t_cono, &normal_cono);
 
-    if (hit_sphere && (!hit_cyl || t_sphere < t_cilindro) && (!hit_cube || t_sphere < t_cubo)) {
+    if (hit_sphere && (!hit_cyl || t_sphere < t_cilindro) && (!hit_cone || t_sphere < t_cono)) {
         Vector3 hit_point = rayo(r, t_sphere);
         Vector3 light_dir = norm3(rest3(luz.posicion, hit_point));
         float difuso = fmax(0.0, dot3(normal_sphere, light_dir));
+        if (difuso < 0.0) {
+            difuso = fmax(0.0, dot3(escala3(normal_sphere, -1.0), light_dir));
+        }
         Vector3 color = Esc3(luz.color, difuso);
         return color;
-    } else if (hit_cyl && (!hit_cube || t_cilindro < t_cubo)) {
+    } else if (hit_cyl && (!hit_cone || t_cilindro < t_cono)) {
         Vector3 hit_point = rayo(r, t_cilindro);
         Vector3 light_dir = norm3(rest3(luz.posicion, hit_point));
         float difuso = fmax(0.0, dot3(normal_cilindro, light_dir));
+        if (difuso < 0.0) {
+            difuso = fmax(0.0, dot3(escala3(normal_cilindro, -1.0), light_dir));
+        }
         Vector3 color = Esc3(luz.color, difuso);
         return color;
-    } else if (hit_cube) {
-        Vector3 hit_point = rayo(r, t_cubo);
+    } else if (hit_cone) {
+        Vector3 hit_point = rayo(r, t_cono);
         Vector3 light_dir = norm3(rest3(luz.posicion, hit_point));
-        float difuso = fmax(0.0, dot3(normal_cubo, light_dir));
+        float difuso = fmax(0.0, dot3(normal_cono, light_dir));
+        if (difuso < 0.0) {
+            difuso = fmax(0.0, dot3(escala3(normal_cono, -1.0), light_dir));
+        }
         Vector3 color = Esc3(luz.color, difuso);
         return color;
     }
@@ -54,14 +64,29 @@ Vector3 calcularColor(Esfera sphere, Cilindro cilindro, Cubo cubo, Ray r, Luz lu
     return (Vector3){0, 0, 0}; // Fondo negro
 }
 
-void generateRayTracingImage(const char *filename, Esfera sphere, Cilindro cilindro, Cubo cubo, Luz luz, float angle) {
+Vector3 rotarY(Vector3 v, float angle) {
+    float sin_theta = sin(angle);
+    float cos_theta = cos(angle);
+    return (Vector3){
+        v.x * cos_theta + v.z * sin_theta,
+        v.y,
+        -v.x * sin_theta + v.z * cos_theta
+    };
+}
+
+void generateRayTracingImage(const char *filename, Esfera sphere, Cilindro cilindro, Cono cono, Luz luz, float angle) {
     unsigned char *image = (unsigned char *)malloc(3 * WIDTH * HEIGHT);
     if (!image) {
         printf("Error allocating memory for image.\n");
         return;
     }
 
-    Vector3 camera_position = rotarY((Vector3){0, 0, 1}, angle); // Rotar la cámara alrededor del origen
+    // Rotar las figuras alrededor del eje Y
+    sphere.centro = rotarY(sphere.centro, angle);
+    cilindro.base = rotarY(cilindro.base, angle);
+    cono.base = rotarY(cono.base, angle);
+
+    Vector3 camera_position = {0, 0, 15}; 
 
     for (int y = 0; y < HEIGHT; ++y) {
         for (int x = 0; x < WIDTH; ++x) {
@@ -72,7 +97,7 @@ void generateRayTracingImage(const char *filename, Esfera sphere, Cilindro cilin
             rayo.origen = camera_position;
             rayo.direccion = norm3((Vector3){u * 2 - 1, v * 2 - 1, -1});
 
-            Vector3 color = calcularColor(sphere, cilindro, cubo, rayo, luz);
+            Vector3 color = calcularColor(sphere, cilindro, cono, rayo, luz);
             int pixel_index = (y * WIDTH + x) * 3;
             image[pixel_index] = (unsigned char)(color.x * 255);
             image[pixel_index + 1] = (unsigned char)(color.y * 255);
@@ -84,7 +109,7 @@ void generateRayTracingImage(const char *filename, Esfera sphere, Cilindro cilin
     free(image);
 }
 
-void createAnimationFrames(Esfera sphere, Cilindro cilindro, Cubo cubo, Luz luz) {
+void createAnimationFrames(Esfera sphere, Cilindro cilindro, Cono cono, Luz luz) {
     struct stat st = {0};
 
     // Crear la carpeta si no existe
@@ -94,9 +119,9 @@ void createAnimationFrames(Esfera sphere, Cilindro cilindro, Cubo cubo, Luz luz)
 
     char filename[100];
     for (int i = 0; i < FRAMES; ++i) {
-        float angle = (float)i / FRAMES * 2.0 * M_PI;
+        float angle = (float)i / FRAMES * 2.0 * PI;
         snprintf(filename, sizeof(filename), FRAME_DIR "/frame_%03d.ppm", i);
-        generateRayTracingImage(filename, sphere, cilindro, cubo, luz, angle);
+        generateRayTracingImage(filename, sphere, cilindro, cono, luz, angle);
     }
 }
 
@@ -111,15 +136,17 @@ int main() {
     cilindro.radius = 0.5;
     cilindro.height = 2.0;
 
-    Cubo cubo;
-    cubo.min = (Vector3){2, -1, -6};
-    cubo.max = (Vector3){3, 0, -5};
+    Cono cono;
+    cono.base = (Vector3){2, -1, -6};
+    cono.axis = (Vector3){0, 1, 0};
+    cono.radius = 0.5;
+    cono.height = 2.0;
 
     Luz luz;
     luz.posicion = (Vector3){-2, 2, 0};
     luz.color = (Vector3){1, 1, 1}; // Luz blanca
 
-    createAnimationFrames(sphere, cilindro, cubo, luz);
+    createAnimationFrames(sphere, cilindro, cono, luz);
 
     return 0;
 }

@@ -10,4 +10,5 @@ typedef struct {
 
 Camara crear_camara(Vector3 origen, Vector3 direccion);
 
+
 #endif

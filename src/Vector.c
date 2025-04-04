@@ -75,15 +75,6 @@ Vector3 rotarX(Vector3 v, float angle) {
     };
 }
 
-Vector3 rotarY(Vector3 v, float angle) {
-    float cosAngle = cos(angle);
-    float sinAngle = sin(angle);
-    return (Vector3){
-        v.x * cosAngle + v.z * sinAngle,
-        v.y,
-        -v.x * sinAngle + v.z * cosAngle
-    };
-}
 
 Vector3 puntoMedio(Vector3 a, Vector3 b) {
     return (Vector3){

@@ -31,8 +31,6 @@ float mag3( Vector3 a);
 Vector3 norm3( Vector3 a);
 Vector3 Esc3( Vector3 a, float b);
 float dot3( Vector3 a,  Vector3 b);
-Vector3 cruz3( Vector3 a,  Vector3 b);
-Vector3 rotarX(Vector3 v, float angle); 
-Vector3 rotarY(Vector3 v, float angle); 
+Vector3 cruz3( Vector3 a,  Vector3 b); 
 Vector3 puntoMedio(Vector3 a, Vector3 b);
 #endif 
