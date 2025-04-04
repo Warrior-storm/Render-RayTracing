@@ -12,6 +12,7 @@
 #define FRAMES 30
 #define PI 3.14159265359
 #define FRAME_DIR "frames"
+#define ROTATION_RADIUS 1.0
 
 void save_image_ppm(const char *filename, unsigned char *image, int width, int height) {
     FILE *file = fopen(filename, "wb");
@@ -32,36 +33,89 @@ Vector3 calcularColor(Esfera sphere, Cilindro cilindro, Cono cono, Ray r, Luz lu
     int hit_cyl = hit_Cilindro(cilindro, r, &t_cilindro, &normal_cilindro);
     int hit_cone = hit_cono(cono, r, &t_cono, &normal_cono);
 
+    Vector3 color = {0, 0, 0}; 
+    Vector3 ambient = {0.1, 0.1, 0.1}; // Ambient light
+
     if (hit_sphere && (!hit_cyl || t_sphere < t_cilindro) && (!hit_cone || t_sphere < t_cono)) {
         Vector3 hit_point = rayo(r, t_sphere);
         Vector3 light_dir = norm3(rest3(luz.posicion, hit_point));
-        float difuso = fmax(0.0, dot3(normal_sphere, light_dir));
+        Vector3 normal = normal_sphere;
+
+        // Handle backface lighting
+        float difuso = dot3(normal, light_dir);
         if (difuso < 0.0) {
-            difuso = fmax(0.0, dot3(escala3(normal_sphere, -1.0), light_dir));
+            normal = Esc3(normal, -1.0);
+            difuso = fmax(0.0, dot3(normal, light_dir));
         }
-        Vector3 color = Esc3(luz.color, difuso);
-        return color;
+
+        // Diffuse lighting
+        difuso = fmax(0.0, difuso);
+        Vector3 diffuse = Esc3(luz.color, difuso);
+
+        // Specular lighting (optional)
+        Vector3 view_dir = norm3(rest3(r.origen, hit_point));
+        Vector3 reflect_dir = norm3(rest3(Esc3(normal, 2.0 * dot3(normal, light_dir)), light_dir));
+        float specular = pow(fmax(0.0, dot3(view_dir, reflect_dir)), 32.0);
+        Vector3 specular_color = Esc3(luz.color, specular);
+
+        // Combine ambient, diffuse, and specular
+        color = sum3(ambient, sum3(diffuse, specular_color));
     } else if (hit_cyl && (!hit_cone || t_cilindro < t_cono)) {
         Vector3 hit_point = rayo(r, t_cilindro);
         Vector3 light_dir = norm3(rest3(luz.posicion, hit_point));
-        float difuso = fmax(0.0, dot3(normal_cilindro, light_dir));
+        Vector3 normal = normal_cilindro;
+
+        // Handle backface lighting
+        float difuso = dot3(normal, light_dir);
         if (difuso < 0.0) {
-            difuso = fmax(0.0, dot3(escala3(normal_cilindro, -1.0), light_dir));
+            normal = Esc3(normal, -1.0);
+            difuso = fmax(0.0, dot3(normal, light_dir));
         }
-        Vector3 color = Esc3(luz.color, difuso);
-        return color;
+
+        // Diffuse lighting
+        difuso = fmax(0.0, difuso);
+        Vector3 diffuse = Esc3(luz.color, difuso);
+
+        // Specular lighting (optional)
+        Vector3 view_dir = norm3(rest3(r.origen, hit_point));
+        Vector3 reflect_dir = norm3(rest3(Esc3(normal, 2.0 * dot3(normal, light_dir)), light_dir));
+        float specular = pow(fmax(0.0, dot3(view_dir, reflect_dir)), 32.0);
+        Vector3 specular_color = Esc3(luz.color, specular);
+
+        // Combine ambient, diffuse, and specular
+        color = sum3(ambient, sum3(diffuse, specular_color));
     } else if (hit_cone) {
         Vector3 hit_point = rayo(r, t_cono);
         Vector3 light_dir = norm3(rest3(luz.posicion, hit_point));
-        float difuso = fmax(0.0, dot3(normal_cono, light_dir));
+        Vector3 normal = normal_cono;
+
+        // Handle backface lighting
+        float difuso = dot3(normal, light_dir);
         if (difuso < 0.0) {
-            difuso = fmax(0.0, dot3(escala3(normal_cono, -1.0), light_dir));
+            normal = Esc3(normal, -1.0);
+            difuso = fmax(0.0, dot3(normal, light_dir));
         }
-        Vector3 color = Esc3(luz.color, difuso);
-        return color;
+
+        // Diffuse lighting
+        difuso = fmax(0.0, difuso);
+        Vector3 diffuse = Esc3(luz.color, difuso);
+
+        // Specular lighting (optional)
+        Vector3 view_dir = norm3(rest3(r.origen, hit_point));
+        Vector3 reflect_dir = norm3(rest3(Esc3(normal, 2.0 * dot3(normal, light_dir)), light_dir));
+        float specular = pow(fmax(0.0, dot3(view_dir, reflect_dir)), 32.0);
+        Vector3 specular_color = Esc3(luz.color, specular);
+
+        // Combine ambient, diffuse, and specular
+        color = sum3(ambient, sum3(diffuse, specular_color));
     }
 
-    return (Vector3){0, 0, 0}; // Fondo negro
+    // Clamp color values to [0, 1]
+    color.x = fmax(0.0, fmin(1.0, color.x));
+    color.y = fmax(0.0, fmin(1.0, color.y));
+    color.z = fmax(0.0, fmin(1.0, color.z));
+
+    return color; 
 }
 
 Vector3 rotarY(Vector3 v, float angle) {
@@ -81,12 +135,11 @@ void generateRayTracingImage(const char *filename, Esfera sphere, Cilindro cilin
         return;
     }
 
-    // Rotar las figuras alrededor del eje Y
-    sphere.centro = rotarY(sphere.centro, angle);
-    cilindro.base = rotarY(cilindro.base, angle);
+    sphere.centro = Esc3(rotarY(sphere.centro, angle),ROTATION_RADIUS);
+    cilindro.base = Esc3(rotarY(cilindro.base, angle),ROTATION_RADIUS);
     cono.base = rotarY(cono.base, angle);
 
-    Vector3 camera_position = {0, 0, 15}; 
+    Vector3 camera_position = {0, 0, 9}; 
 
     for (int y = 0; y < HEIGHT; ++y) {
         for (int x = 0; x < WIDTH; ++x) {
@@ -112,7 +165,6 @@ void generateRayTracingImage(const char *filename, Esfera sphere, Cilindro cilin
 void createAnimationFrames(Esfera sphere, Cilindro cilindro, Cono cono, Luz luz) {
     struct stat st = {0};
 
-    // Crear la carpeta si no existe
     if (stat(FRAME_DIR, &st) == -1) {
         mkdir(FRAME_DIR, 0700);
     }
@@ -144,7 +196,7 @@ int main() {
 
     Luz luz;
     luz.posicion = (Vector3){-2, 2, 0};
-    luz.color = (Vector3){1, 1, 1}; // Luz blanca
+    luz.color = (Vector3){1, 1, 1};
 
     createAnimationFrames(sphere, cilindro, cono, luz);
 

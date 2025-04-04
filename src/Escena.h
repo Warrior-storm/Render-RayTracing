@@ -1,14 +1,13 @@
-#ifndef ESFERA_H
-#define ESFERA_H
+#ifndef ESCENA_H
+#define ESCENA_H
 
-#include "Vector.h"
-#include "Raytracing.h"
+#include "Esfera.h"
 
 typedef struct {
-    Vector3 centro;
-    float r;
-} Esfera;
+    Esfera *esferas;
+    int num_esferas;
+} Escena;
 
-int hit(Esfera E, Ray r, float *x, Vector3 *normal);
+Escena crear_escena(Esfera *esferas, int num_esferas);
 
-#endif
+#endif // ESCENA_H
