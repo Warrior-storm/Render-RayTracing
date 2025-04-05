@@ -60,6 +60,7 @@
     "vector.h": "c",
     "Escena.C": "cpp",
     "raytracing.h": "c",
-    "cono.h": "c"
+    "cono.h": "c",
+    "stdio.h": "c"
   }
 }

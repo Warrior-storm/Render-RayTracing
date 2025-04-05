@@ -126,7 +126,7 @@ void generateRayTracingImage(const char *filename, Esfera sphere, Cilindro cilin
     cilindro.base = rotarY(cilindro.base, angle); 
     cono.base = rotarY(cono.base, angle); 
 
-    Vector3 camera_position = {0, 0, 9.5}; 
+    Vector3 camera_position = {0, 0, 5}; 
 
     for (int y = 0; y < HEIGHT; ++y) {
         for (int x = 0; x < WIDTH; ++x) {
@@ -166,23 +166,23 @@ void createAnimationFrames(Esfera sphere, Cilindro cilindro, Cono cono, Luz luz)
 
 int main() {
     Esfera sphere;
-    sphere.centro = (Vector3){0, 0, -5};
+    sphere.centro = (Vector3){0, 0, 0};
     sphere.r = 1.0;
 
     Cilindro cilindro;
-    cilindro.base = (Vector3){-2, -1, -6};
+    cilindro.base = (Vector3){-2, 0, 0}; 
     cilindro.axis = (Vector3){0, 1, 0};
     cilindro.radius = 0.5;
     cilindro.height = 2.0;
 
     Cono cono;
-    cono.base = (Vector3){2, -1, -6};
+    cono.base = (Vector3){2, 0, 0};
     cono.axis = (Vector3){0, 1, 0};
     cono.radius = 0.5;
     cono.height = 2.0;
 
     Luz luz;
-    luz.posicion = (Vector3){-2, 2, 0};
+    luz.posicion = (Vector3){-2, 2, 0}; // Light position
     luz.color = (Vector3){1, 1, 1};
 
     createAnimationFrames(sphere, cilindro, cono, luz);
