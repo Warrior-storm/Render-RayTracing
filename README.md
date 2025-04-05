@@ -1,6 +1,6 @@
 # Render RayTracing
 
-Render RayTracing es un proyecto en C que implementa un renderizador de imágenes utilizando técnicas de ray tracing. Este proyecto incluye la capacidad de crear escenas con diferentes figuras geométricas y generar imágenes animadas de estas escenas.
+Render RayTracing es un proyecto en C que implementa un renderizador de imágenes utilizando técnicas de ray tracing. Este proyecto incluye la capacidad de crear escenas con diferentes figuras geomé[...]
 
 ## Características
 
